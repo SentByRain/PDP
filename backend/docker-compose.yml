@@ -1,0 +1,43 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:13
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: lil_antoha_big_smoke
+      POSTGRES_PASSWORD: lil_antoha_big_smoke
+      POSTGRES_DB: PDP
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    environment:
+      PGADMIN_DEFAULT_EMAIL: karpoffpasha@yandex.ru
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "8080:80"
+    depends_on:
+      - db
+    volumes:
+      - ./servers.json:/pgadmin4/servers.json
+
+  backend:
+    build:
+      context: .  # Указывает на текущую директорию с Dockerfile
+    container_name: backend
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    environment:
+      POSTGRESQL_DSN: postgresql+psycopg2://lil_antoha_big_smoke:lil_antoha_big_smoke@db:5432/PDP
+    volumes:
+      - .:/app
+
+volumes:
+  postgres_data:

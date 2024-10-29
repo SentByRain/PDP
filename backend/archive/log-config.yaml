@@ -1,0 +1,21 @@
+version: 1
+disable_existing_loggers: False
+formatters:
+  syslog:
+    format: "%(message)s"
+handlers:
+  console:
+    class: logging.StreamHandler
+    level: DEBUG
+    formatter: syslog
+    stream: ext://sys.stdout
+  syslog:
+    class: logging.handlers.SysLogHandler
+    level: DEBUG
+    formatter: syslog
+    address: ['ml-dev1.dohod.local', 5140]
+loggers:
+  uvicorn:
+    level: DEBUG
+    handlers: [syslog]
+    # propagate: no

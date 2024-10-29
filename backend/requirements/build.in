@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+pydantic
+pydantic[email]
+python-dotenv
+requests
+SQLAlchemy
+psycopg2-binary
+pip-system-certs
+graypy
