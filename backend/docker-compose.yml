@@ -28,7 +28,8 @@ services:
 
   backend:
     build:
-      context: .  # Указывает на текущую директорию с Dockerfile
+      context: .
+      dockerfile: Dockerfile  # Указывает на текущую директорию с Dockerfile
     container_name: backend
     ports:
       - "8000:8000"

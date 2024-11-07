@@ -8,3 +8,8 @@ SQLAlchemy
 psycopg2-binary
 pip-system-certs
 graypy
+python-jose
+bcrypt==4.0.1
+passlib[bcrypt]
+aiosmtplib
+jinja2
