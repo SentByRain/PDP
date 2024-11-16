@@ -37,7 +37,11 @@ class Config:
     SMTP_PORT = int(os.getenv("SMTP_PORT", "465"))
     SMTP_USER = os.getenv("SMTP_USER", "a.pdp@yandex.ru")
     SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "curteicktvsbkgga")
-    CODES = {}
+    
+    #USER
+
+    ROLES_HASHMAP = {"teacher" : {"is_teacher" : True},
+                     "student" : {"is_student" : True}}
 
 
 

@@ -16,14 +16,13 @@ from src.logger import logger
 from src.models import Base
 from src.database_control.db import engine
 
-from src.routers import teacher_router
-from src.routers import student_router
+
 from src.routers import schedule_router
 from src.routers import user_router
 from src.routers import mail_router
 
 
-routers = [teacher_router, student_router, schedule_router, user_router, mail_router]
+routers = [schedule_router, user_router, mail_router]
 
 class CustomMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
@@ -104,27 +103,4 @@ def liveness_check():
 @app.get("/actuator/health/readiness", status_code=200)
 def readiness_check():
     return "Service is ready"
-
-from fastapi import FastAPI
-from fastapi.responses import HTMLResponse
-from email.mime.text import MIMEText
-import smtplib
-
-@app.post("/send-verification/")
-async def send_verification_email(email: str):
-    subject = "Email Verification"
-    body = "Please verify your email by clicking on the link."
-    
-    msg = MIMEText(body)
-    msg['Subject'] = subject
-    msg['From'] = 'tijay9965@gmail.com'
-    msg['To'] = email
-
-    try:
-        # Connect to the Postfix service using its service name
-        with smtplib.SMTP('postfix', 25) as server:
-            server.sendmail('tijay9965@gmail.com', [email], msg.as_string())
-        return {"message": "Verification email sent successfully."}
-    except Exception as e:
-        return {"error": str(e)}
  

@@ -11,6 +11,7 @@ from src.logger import logger
 from src.models import User
 from src.database_control.db import get_db
 
+from src.config import CONFIG
 from src.routers.Users.schemas import UserCreate, UserUpdate, UserGet, UserAuth
 from src.routers.Users.auth import (get_password_hash,  
                                     create_access_token, 
@@ -54,12 +55,12 @@ def create_user(user: UserCreate, db: Session = Depends(get_db)) -> str:
                 detail='Пользователь уже существует'
             )
         
-        print(f'User: {user.name}')
 
         new_user = User(name=user.name, 
                         surname=user.surname, 
                         email=user.email, 
-                        password=get_password_hash(user.password)
+                        password=get_password_hash(user.password),
+                        **CONFIG.ROLES_HASHMAP.get(user.role)
                         )
         db.add(new_user)
         db.commit()

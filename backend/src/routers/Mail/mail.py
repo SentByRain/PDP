@@ -32,6 +32,8 @@ def save_code(email : str, code : str):
 
     db.commit()
 
+    return f"Code for {email} was succesesfully save to database"
+
 def get_code(email : str):
     db = next(get_db())
     check_user = db.query(Verification).filter(Verification.email == email).first()
@@ -68,14 +70,14 @@ def send_confirmation_email(to_email: str):
         server.login(from_email, password)
         server.auth_plain()
         server.send_message(message)
+        
+        server.quit()
 
         return to_email
 
     except Exception as e:
         raise e
     
-    finally:
-        server.quit()
 
     
 

@@ -1,3 +1,4 @@
+from typing import Literal
 from pydantic import BaseModel, Field, EmailStr
 from datetime import datetime
 
@@ -7,6 +8,7 @@ class UserCreate(BaseModel):
     surname : str = Field(...)
     email : EmailStr = Field(...)
     password : str = Field(...)
+    role : Literal['student', 'teacher'] = Field(...) 
     verification_code: str = Field(...)
 
 class UserUpdate(BaseModel):
@@ -25,4 +27,4 @@ class UserGet(BaseModel):
 
 class UserAuth(BaseModel):
     email: EmailStr = Field(..., description="Электронная почта")
-    password: str = Field(..., min_length=5, max_length=50, description="Пароль, от 5 до 50 знаков")
+    password: str = Field(..., description="Пароль, от 5 до 50 знаков")

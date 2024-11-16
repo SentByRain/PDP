@@ -1,1 +1,0 @@
-from src.routers.Teachers.router import router
