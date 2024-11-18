@@ -1,16 +1,17 @@
 <script setup lang="ts">
-import Button from "primevue/button";
-import InputText from "primevue/inputtext";
-import Slot from "./components/Slot.vue";
+import { provide, ref } from "vue";
+
+import { useUserRegStore } from "./stores/userRegistration";
+import { RegStoreKey } from "./api/symbols";
 
 import { DateTime } from "ts-luxon";
-
 import Schedule from "./components/Schedule.vue";
 
+import LoginBase from "./pages/LoginBase.vue";
 
-import { ref } from "vue";
 
-// const text = ref<string>();
+const userRegStore = useUserRegStore();
+provide(RegStoreKey, userRegStore);
 
 const weekDays = ["ПН", "ВТ", "СР", "ЧТ", "ПТ", "СБ", "ВС"];
 
@@ -27,7 +28,6 @@ for (let i = 1; i < 8; i++) {
     days: currentWeekday.value - i,
   }).day;
 }
-
 
 let weekDates = [];
 const dayTime = [
@@ -50,8 +50,10 @@ const dayTime = [
 
 <template>
   <!-- <Slot></Slot> -->
+  <!-- 
+  <Schedule :time="dayTime" :weekDays = "weekDays" :daysDates = "daysDates"></Schedule> -->
 
-  <Schedule :time="dayTime" :weekDays = "weekDays" :daysDates = "daysDates"></Schedule>
+  <LoginBase></LoginBase>
 </template>
 
 <style scoped></style>
