@@ -1,6 +1,6 @@
-import type { AxiosInstance } from "axios";
+import type { AxiosError, AxiosInstance } from "axios";
 
-import type { registrationInfo } from "@/stores/userRegistration";
+import type { registrationInfo } from "@/interfaces/reg&auth";
 
 export async function requestVerificationCode(
   requestBase: AxiosInstance,
@@ -24,8 +24,8 @@ export async function sendUserInfo(
     password: store.password,
     verification_code: store.enteredCode,
   };
+  // добавить try catch
   const resp = await requestBase.post("/users/register", userInfo);
-  console.log(resp);
   return resp;
 }
 
@@ -38,43 +38,14 @@ export async function sendAuthInfo(
     email: email,
     password: password,
   };
-  const resp = await requestBase.post("/users/login", userInfo);
-  console.log(resp);
-  return resp;
+  try {
+    const resp = await requestBase.post("/users/login", userInfo);
+    return resp;
+  } catch (e) {
+    // подшаманить с typescript
+    console.log(e.status);
+  }
 }
 export default function (instance: AxiosInstance) {
-  return {
-    // async getProfile() {
-    //   const response = await instance.get("profile");
-    //   return response.data;
-    // },
-    // async getChats() {
-    //   const response = await instance.get("chats");
-    //   return response.data;
-    // },
-    // async getChatData(contact_id) {
-    //   const response = await instance.get("chat/messages/" + contact_id);
-    //   return response.data.conversation;
-    // },
-    // async sendMessageToServer(message) {
-    //   const axiosConfig = {
-    //     headers: {
-    //       "Content-Type": "application/json; charset=utf-8",
-    //       "Access-Control-Allow-Origin": "*",
-    //     },
-    //   };
-    //   const response = await instance.post(
-    //     "/chat/message/send/",
-    //     message,
-    //     axiosConfig
-    //   );
-    //   return response.data.conversation;
-    // },
-    // const axiosConfig = {
-    //   headers: {
-    //     "Content-Type": "application/json; charset=utf-8",
-    //     "Access-Control-Allow-Origin": "*",
-    //   },
-    // };
-  };
+  return {};
 }

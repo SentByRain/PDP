@@ -1,23 +1,43 @@
 <script setup lang="ts">
-import {
-  Form,
-  type FormFieldState,
-  type FormSubmitEvent,
-} from "@primevue/forms";
+import { Form, type FormSubmitEvent } from "@primevue/forms";
 
-import Password from "primevue/password";
-import FloatLabel from "primevue/floatlabel";
-import Message from "primevue/message";
-import InputText from "primevue/inputtext";
 import Button from "primevue/button";
+
+import UserInput from "@/components/UserInput.vue";
+import UserPassword from "@/components/UserPassword.vue";
+
 import { useToast } from "primevue/usetoast";
 
 import { AxiosKey } from "@/api/symbols";
 import { injectStrict } from "@/api/injectTyped";
 import { sendAuthInfo } from "@/api/requests";
 
+import type {
+  FormField,
+  InputFormFields,
+  PasswordFormFields,
+} from "@/interfaces/reg&auth";
+
+import router from "@/router";
+
+import type { UserFormFields } from "@/interfaces/reg&auth";
+
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { z } from "zod";
+
+const authInputFields: FormField<InputFormFields>[] = [
+  {
+    name: "email",
+    placeholder: "Почта",
+  },
+];
+
+const authPasswordFields: FormField<PasswordFormFields>[] = [
+  {
+    name: "password",
+    placeholder: "Пароль",
+  },
+];
 
 const requestBase = injectStrict(AxiosKey);
 const toast = useToast();
@@ -31,14 +51,13 @@ const resolver = zodResolver(
   })
 );
 
-interface AuthFormFields {
-  email: FormFieldState;
-  password: FormFieldState;
-}
-
-function onFormSubmit(e: FormSubmitEvent) {
+async function onFormSubmit(e: FormSubmitEvent) {
   if (e.valid) {
-    sendAuthInfo(requestBase, e.states.email.value, e.states.password.value);
+    const response = await sendAuthInfo(
+      requestBase,
+      e.states.email.value,
+      e.states.password.value
+    );
   } else {
     toast.add({
       severity: "warn",
@@ -55,37 +74,26 @@ function onFormSubmit(e: FormSubmitEvent) {
   </div>
 
   <Form
-    v-slot="$form: AuthFormFields"
+    v-slot="$form: UserFormFields"
     :resolver
     :validateOnValueUpdate="false"
     :validateOnBlur="true"
     @submit="onFormSubmit"
     class="form-base"
   >
-    <FloatLabel variant="in">
-      <InputText name="email" type="text" fluid />
-      <label for="email">Почта</label>
-    </FloatLabel>
-    <Message
-      v-if="$form.email?.invalid"
-      severity="error"
-      size="small"
-      variant="simple"
-      class="p-invalid-message"
-      >{{ $form.email.error.message }}</Message
+    <UserInput
+      :form="$form"
+      v-for="field in authInputFields"
+      :name="field.name"
+      :placeholder="field.placeholder"
+    ></UserInput>
+    <UserPassword
+      :form="$form"
+      v-for="field in authPasswordFields"
+      :name="field.name"
+      :placeholder="field.placeholder"
     >
-    <FloatLabel variant="in">
-      <Password name="password" toggleMask />
-      <label for="password">Пароль</label>
-    </FloatLabel>
-    <Message
-      v-if="$form.password?.invalid"
-      severity="error"
-      size="small"
-      variant="simple"
-      class="p-invalid-message"
-      >{{ $form.password.error.message }}</Message
-    >
+    </UserPassword>
     <Button id="form-button" type="submit" label="Войти" />
     <div>
       <p style="text-align: center; font-size: 12px; margin: 0; color: #34d399">

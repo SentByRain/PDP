@@ -9,7 +9,6 @@ import Schedule from "./components/Schedule.vue";
 
 import LoginBase from "./pages/LoginBase.vue";
 
-
 const userRegStore = useUserRegStore();
 provide(RegStoreKey, userRegStore);
 

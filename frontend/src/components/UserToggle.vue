@@ -2,7 +2,7 @@
 import { ref } from "vue";
 import Button from "primevue/button";
 
-import type { User } from "@/stores/userRegistration";
+import type { User } from "@/interfaces/reg&auth";
 
 enum ButtonStatus {
   Selected = "",

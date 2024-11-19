@@ -1,46 +1,63 @@
 <script setup lang="ts">
 import UserToggle from "@/components/UserToggle.vue";
-import InputText from "primevue/inputtext";
 import Button from "primevue/button";
-import Password from "primevue/password";
-import FloatLabel from "primevue/floatlabel";
 import Toast from "primevue/toast";
-import Message from "primevue/message";
-import InputOtp from "primevue/inputotp";
 
-import {
-  Form,
-  type FormFieldState,
-  type FormSubmitEvent,
-} from "@primevue/forms";
+import UserInput from "@/components/UserInput.vue";
+import UserPassword from "@/components/UserPassword.vue";
 
-import { ref } from "vue";
+import { Form, type FormSubmitEvent } from "@primevue/forms";
+
+import type { UserFormFields } from "@/interfaces/reg&auth";
+
 import { useToast } from "primevue/usetoast";
 
 import { zodResolver } from "@primevue/forms/resolvers/zod";
 import { z } from "zod";
-
-import type { FormSlots } from "@primevue/forms";
 
 import { injectStrict } from "@/api/injectTyped";
 import { AxiosKey } from "@/api/symbols";
 import { RegStoreKey } from "@/api/symbols";
 import { requestVerificationCode } from "@/api/requests";
 
+import type {
+  FormField,
+  InputFormFields,
+  PasswordFormFields,
+} from "@/interfaces/reg&auth";
+
 import router from "@/router";
+
+const regInputFields: FormField<InputFormFields>[] = [
+  {
+    name: "username",
+    placeholder: "Имя",
+  },
+  {
+    name: "surname",
+    placeholder: "Фамилия",
+  },
+  {
+    name: "email",
+    placeholder: "Почта",
+  },
+];
+
+const regPasswordFields: FormField<PasswordFormFields>[] = [
+  {
+    name: "password",
+    placeholder: "Пароль",
+  },
+  {
+    name: "repeatedPassword",
+    placeholder: "Повторите пароль",
+  },
+];
 
 const toast = useToast();
 
 const requestBase = injectStrict(AxiosKey);
 const userRegStore = injectStrict(RegStoreKey);
-
-interface RegFormFields extends FormSlots {
-  username: FormFieldState;
-  surname: FormFieldState;
-  email: FormFieldState;
-  password: FormFieldState;
-  repeatedPassword: FormFieldState;
-}
 
 const resolver = zodResolver(
   z
@@ -117,85 +134,27 @@ const onFormSubmit = async (e: FormSubmitEvent) => {
     <UserToggle v-model="userRegStore.role"></UserToggle>
     <Toast />
     <Form
-      v-slot="$form: RegFormFields"
+      v-slot="$form: UserFormFields"
       :resolver
       :validateOnValueUpdate="false"
       :validateOnBlur="true"
       @submit="onFormSubmit"
       class="form-base"
     >
-      <FloatLabel variant="in">
-        <InputText name="username" type="text" fluid />
-        <label for="username">Имя</label>
-      </FloatLabel>
-      <Message
-        v-if="$form.username?.invalid"
-        severity="error"
-        size="small"
-        variant="simple"
-        class="p-invalid-message"
-        >{{ $form.username.error.message }}</Message
-      >
+      <UserInput
+        :form="$form"
+        v-for="field in regInputFields"
+        :name="field.name"
+        :placeholder="field.placeholder"
+      ></UserInput>
 
-      <FloatLabel variant="in">
-        <InputText name="surname" type="text" fluid />
-        <label for="surname">Фамилия</label>
-      </FloatLabel>
-      <Message
-        v-if="$form.surname?.invalid"
-        severity="error"
-        size="small"
-        variant="simple"
-        class="p-invalid-message"
-        >{{ $form.surname.error.message }}</Message
+      <UserPassword
+        :form="$form"
+        v-for="field in regPasswordFields"
+        :name="field.name"
+        :placeholder="field.placeholder"
       >
-
-      <FloatLabel variant="in">
-        <InputText name="email" type="text" fluid />
-        <label for="email">Почта</label>
-      </FloatLabel>
-      <Message
-        v-if="$form.email?.invalid"
-        severity="error"
-        size="small"
-        variant="simple"
-        class="p-invalid-message"
-        >{{ $form.email.error.message }}</Message
-      >
-      <FloatLabel variant="in">
-        <Password name="password" toggleMask />
-        <label for="password">Пароль</label>
-      </FloatLabel>
-      <Message
-        v-if="$form.password?.invalid"
-        severity="error"
-        size="small"
-        variant="simple"
-        class="p-invalid-message"
-      >
-        <div v-if="$form.password.errors.length === 1">
-          {{ $form.password.error.message }}
-        </div>
-        <ul v-else class="my-0 px-4 flex flex-col gap-1">
-          <li v-for="(error, index) of $form.password.errors" :key="index">
-            {{ error.message }}
-          </li>
-        </ul>
-      </Message>
-
-      <FloatLabel variant="in">
-        <Password name="repeatedPassword" toggleMask />
-        <label for="repeatedPassword">Повтор пароля</label>
-      </FloatLabel>
-
-      <Message
-        v-if="$form.repeatedPassword?.invalid"
-        severity="error"
-        size="small"
-        variant="simple"
-        class="p-invalid-message"
-        >{{ $form.repeatedPassword.error.message }}</Message
-      >
+      </UserPassword>
       <Button id="form-button" type="submit" label="Отправить" />
     </Form>
     <div>

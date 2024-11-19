@@ -21,6 +21,7 @@ const showSendButton = ref<Boolean>(false);
 
 //  }
 // };
+
 </script>
 <template>
   <section
@@ -63,5 +64,5 @@ const showSendButton = ref<Boolean>(false);
       :request-base="requestBase"
     />
   </section>
-</template
+</template>
 <style></style>
