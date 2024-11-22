@@ -20,13 +20,13 @@ router = APIRouter(prefix=PREFIX, tags=['Mail'])
 def send_post_code(email: EmailStr, db : Session = Depends(get_db)) -> str:
 
     try:
-        check_user = db.query(User).filter(User.email == email).first()
+        # check_user = db.query(User).filter(User.email == email).first()
 
-        if  check_user:
-            raise HTTPException(
-                status_code=status.HTTP_409_CONFLICT,
-                detail='Пользователь уже существует'
-            )
+        # if  check_user:
+        #     raise HTTPException(
+        #         status_code=status.HTTP_409_CONFLICT,
+        #         detail='Пользователь уже существует'
+        #     )
         
         send_confirmation_email(to_email=email)
 

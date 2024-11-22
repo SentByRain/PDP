@@ -12,10 +12,10 @@ class UserCreate(BaseModel):
     verification_code: str = Field(...)
 
 class UserUpdate(BaseModel):
-    name: str | None = None  
-    surname: str | None = None
     email : EmailStr | None = None 
-    password : str | None = None
+    old_password : str | None = None
+    new_password : str | None = None
+    verification_code: str = Field(...)
 
 class UserGet(BaseModel):
     id : int

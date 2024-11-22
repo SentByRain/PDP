@@ -6,45 +6,6 @@ import datetime
 
 Base = declarative_base()
 
-# class UserRole(enum.Enum):
-#     TEACHER = "teacher"
-#     STUDENT = "student"
-
-# class User(Base):
-#     __tablename__ = "users"
-    
-#     id = Column(Integer, primary_key=True, index=True, autoincrement=True)
-#     username = Column(String, unique=True, nullable=False)
-#     password_hash = Column(String, nullable=False)
-#     email = Column(String, unique=True, nullable=False)
-#     role = Column(Enum(UserRole), nullable=False)
-#     created_at = Column(DateTime, default=datetime.datetime.now(datetime.timezone.utc))
-
-#     # Связи
-#     teacher = relationship("Teacher", back_populates="user", uselist=False)
-#     student = relationship("Student", back_populates="user", uselist=False)
-#     # messages_sent = relationship("Message", back_populates="sender", foreign_keys="Message.sender_id")
-#     # messages_received = relationship("Message", back_populates="receiver", foreign_keys="Message.receiver_id")
-
-
-class Teacher(Base):
-    __tablename__ = "teachers"
-    
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(36), nullable=False)
-    surname = Column(String(36), nullable=False)
-    email = Column(String, unique=True, nullable=False)
-    created_at = Column(DateTime, default=datetime.datetime.now(datetime.timezone.utc))
-
-
-class Student(Base):
-    __tablename__ = "students"
-    
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(36), nullable=False)
-    surname = Column(String(36), nullable=False)
-    email = Column(String, unique=True, nullable=False)
-    created_at = Column(DateTime, default=datetime.datetime.now(datetime.timezone.utc))
 
 class User(Base):
     __tablename__ = "users"
@@ -53,6 +14,7 @@ class User(Base):
     surname = Column(String(36), nullable=False)
     email = Column(String, unique=True, nullable=False)
     password = Column(String, nullable=False)
+    updated_at = Column(DateTime, default=func.now(), onupdate=func.now())
     created_at = Column(DateTime, default=func.now())
 
     is_user = Column(Boolean, default=True, server_default=text('true'), nullable=False)
@@ -90,4 +52,5 @@ class Verification(Base):
     id = Column(Integer, primary_key=True, autoincrement=True)
     email = Column(String, unique=True, nullable=False)
     code = Column(String, nullable=False)
+    expired = Column(Boolean, default=False)
     created_at = Column(DateTime, default=datetime.datetime.now(datetime.timezone.utc))

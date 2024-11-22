@@ -17,7 +17,8 @@ from src.routers.Users.auth import (get_password_hash,
                                     create_access_token, 
                                     authenticate_user,
                                     get_current_user,
-                                    get_current_admin_user)
+                                    get_current_admin_user,
+                                    verify_password)
 
 
 PREFIX = '/users'
@@ -81,6 +82,32 @@ async def auth_user(response: Response, user_data: UserAuth, db: Session = Depen
     response.set_cookie(key="users_access_token", value=access_token, httponly=True)
     return {'access_token': access_token, 'refresh_token': None}
 
+@router.put("/change/")
+def update_user(user_update: UserUpdate, db: Session = Depends(get_db)) -> str:
+    # Изменяем пользователя
+    try:
+        print(user_update.email)
+
+        user = db.query(User).filter(User.email == user_update.email).first()
+        if user is None:
+            raise HTTPException(status_code=404, detail="User not found")
+        
+        assert verify_password(plain_password=user_update.old_password, hashed_password=user.password), "Invalid old password"
+        
+        code = get_code(user.email)
+
+        assert user_update.verification_code == code, f"Invalid verification code {user_update.verification_code} != {code}"
+        
+        user.password = get_password_hash(user_update.new_password)
+        
+        db.commit()
+        db.refresh(user)  # Refresh to get updated data from the database
+
+        return user.email
+    
+    except Exception as e:
+        raise HTTPException(500, detail=str(e))
+
 @router.get("/me/")
 async def get_me(user_data: User = Depends(get_current_user)):
     return user_data
@@ -125,27 +152,4 @@ def delete_user(email : str, user_data: User = Depends(get_current_user), db: Se
     except Exception as e:
         raise HTTPException(500, detail=str(e))
 
-@router.put("/change/{email}")
-def update_user(user_update: UserUpdate, email : str, user_data: User = Depends(get_current_user), db: Session = Depends(get_db)) -> str:
-    # Изменяем пользователя
-    try:
 
-        user = db.query(User).filter(User.email == email).first()
-        if user is None:
-            raise HTTPException(status_code=404, detail="User not found")
-        
-            # Update fields if provided
-        if user_update.name is not None:
-            user.name = user_update.name
-        if user_update.surname is not None:
-            user.surname = user_update.surname
-        if user_update.email is not None:
-            user.email = user_update.email
-        
-        db.commit()
-        db.refresh(user)  # Refresh to get updated data from the database
-
-        return user.email
-    
-    except Exception as e:
-        raise HTTPException(500, detail=str(e))
