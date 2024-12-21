@@ -52,7 +52,8 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 8%;
+  min-width: 30px;
+  width: 20%;
   aspect-ratio: 1;
   border-radius: 50%;
   background-color: white;

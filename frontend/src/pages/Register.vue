@@ -26,7 +26,7 @@ import type {
   PasswordFormFields,
 } from "@/interfaces/reg&auth";
 
-import router from "@/router";
+import router from "@/router/router";
 
 const regInputFields: FormField<InputFormFields>[] = [
   {

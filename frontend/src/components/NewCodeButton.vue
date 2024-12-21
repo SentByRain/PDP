@@ -2,7 +2,7 @@
 import { requestVerificationCode } from "@/api/requests";
 import { ref } from "vue";
 import type { AxiosInstance } from "axios";
-import type { registrationInfo } from "@/stores/userRegistration";
+import type { registrationInfo } from "@/interfaces/reg&auth";
 
 function setTimer() {
   const newLetterTimer = setInterval(() => {

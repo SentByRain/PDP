@@ -18,7 +18,7 @@ import type {
   PasswordFormFields,
 } from "@/interfaces/reg&auth";
 
-import router from "@/router";
+import router from "@/router/router";
 
 import type { UserFormFields } from "@/interfaces/reg&auth";
 
@@ -58,6 +58,9 @@ async function onFormSubmit(e: FormSubmitEvent) {
       e.states.email.value,
       e.states.password.value
     );
+    if (response) {
+      router.push("user");
+    }
   } else {
     toast.add({
       severity: "warn",

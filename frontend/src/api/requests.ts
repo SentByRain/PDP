@@ -1,15 +1,26 @@
-import type { AxiosError, AxiosInstance } from "axios";
+import type { AxiosError, AxiosInstance, AxiosResponse } from "axios";
 
 import type { registrationInfo } from "@/interfaces/reg&auth";
+import axios from "axios";
 
 export async function requestVerificationCode(
   requestBase: AxiosInstance,
   store: registrationInfo
 ) {
-  const resp = await requestBase.post(
-    "/mail/send_verification_code?email=" + store.email
-  );
-  return resp;
+  try {
+    const resp = await requestBase.post(
+      "/mail/send_verification_code?email=" + store.email
+    );
+    return resp;
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      // it's AxiosError type
+      console.error("Axios error:", error.response?.data.message);
+    } else {
+      // it's different error
+      console.error("Unexpected error:", error);
+    }
+  }
 }
 
 export async function sendUserInfo(
@@ -24,9 +35,18 @@ export async function sendUserInfo(
     password: store.password,
     verification_code: store.enteredCode,
   };
-  // добавить try catch
-  const resp = await requestBase.post("/users/register", userInfo);
-  return resp;
+  try {
+    const resp = await requestBase.post("/users/register", userInfo);
+    return resp;
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      // it's AxiosError type
+      console.error("Axios error:", error.response?.data.message);
+    } else {
+      // it's different error
+      console.error("Unexpected error:", error);
+    }
+  }
 }
 
 export async function sendAuthInfo(
@@ -41,9 +61,15 @@ export async function sendAuthInfo(
   try {
     const resp = await requestBase.post("/users/login", userInfo);
     return resp;
-  } catch (e) {
-    // подшаманить с typescript
-    console.log(e.status);
+  } catch (error: unknown) {
+    if (axios.isAxiosError(error)) {
+      // it's AxiosError type
+      console.error("Axios error:", error.response?.data.message);
+    } else {
+      // it's different error
+      console.error("Unexpected error:", error);
+    }
+    // console.log(error.response.data.message);
   }
 }
 export default function (instance: AxiosInstance) {
