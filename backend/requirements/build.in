@@ -13,3 +13,6 @@ bcrypt==4.0.1
 passlib[bcrypt]
 aiosmtplib
 jinja2
+minio
+python-multipart
+pyjwt

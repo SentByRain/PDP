@@ -30,18 +30,29 @@ class Config:
 
     SECRET_KEY=os.getenv("SECRET_KEY", "gV64m9aIzFG4qpgVphvQbPQrtAO0nM-7YwwOvu0XPt5KJOjAy4AfgLkqJXYEt")
     ALGORITHM=os.getenv("ALGORITHM", "HS256")
+    ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
     #MAIL
 
     SMTP_SERVER = os.getenv("SMTP_HOST",  "smtp.yandex.ru")
     SMTP_PORT = int(os.getenv("SMTP_PORT", "465"))
-    SMTP_USER = os.getenv("SMTP_USER", "a.pdp@yandex.ru")
-    SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "curteicktvsbkgga")
+    # SMTP_USER = os.getenv("SMTP_USER", "a.pdp@yandex.ru")
+    # SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "curteicktvsbkgga")
+    SMTP_USER = os.getenv("SMTP_USER", "karpoffpasha@yandex.ru")
+    SMTP_PASSWORD = os.getenv("SMTP_PASSWORD", "eoryyomxdpdzeogi")
     
     #USER
 
     ROLES_HASHMAP = {"teacher" : {"is_teacher" : True},
                      "student" : {"is_student" : True}}
+    
+    #FILES
+
+    MINIO_ENDPOINT = os.getenv("MINIO_ENDPOINT",  "0.0.0.0:7000")
+    MINIO_ROOT_USER = os.getenv("MINIO_ROOT_USER",  "ROOTNAME")
+    MINIO_ROOT_PASSWORD = os.getenv("MINIO_ROOT_PASSWORD",  "CHANGEME123")
+    MINIO_FILES_BUCKET_NAME = os.getenv("MINIO_FILES_BUCKET_NAME",  "pdp-files")
+    MINIO_SECURE = os.getenv("MINIO_SECURE",  False)
 
 
 

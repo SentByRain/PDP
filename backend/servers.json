@@ -3,7 +3,7 @@
     "1": {
       "Name": "PDP",
       "Group": "Servers",
-      "Host": "db",
+      "Host": "pdp-db",
       "Port": 5432,
       "Username": "lil_antoha_big_smoke",
       "Password": "lil_antoha_big_smoke",

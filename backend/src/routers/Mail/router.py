@@ -4,10 +4,7 @@ from pydantic import EmailStr
 from sqlalchemy.orm import Session
 
 from src.routers.Mail.mail import send_confirmation_email
-from src.models import User
 from src.database_control.db import get_db
-
-
 
 
 PREFIX = '/mail'

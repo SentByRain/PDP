@@ -28,3 +28,32 @@ class UserGet(BaseModel):
 class UserAuth(BaseModel):
     email: EmailStr = Field(..., description="Электронная почта")
     password: str = Field(..., description="Пароль, от 5 до 50 знаков")
+
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str
+
+
+class TokenData(BaseModel):
+    email: EmailStr | None = None
+
+
+class UserSchema(BaseModel):
+    id : int
+    name : str
+    surname : str
+    email : EmailStr
+    password : str
+
+    is_user : bool = Field(default=True)
+    is_student : bool = Field(default=False)
+    is_teacher : bool = Field(default=False)
+    is_admin : bool = Field(default=False)
+    is_super_admin : bool = Field(default=False)
+
+
+class UserInDB(UserSchema):
+    hashed_password: str
+
+

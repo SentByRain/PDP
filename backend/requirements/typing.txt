@@ -5,12 +5,12 @@
 #
 #    pip-compile-multi
 #
-flake8==7.1.1
-    # via -r requirements\typing.in
+flake8==7.1.2
+    # via -r requirements/typing.in
 mccabe==0.7.0
     # via flake8
-mypy==1.13.0
-    # via -r requirements\typing.in
+mypy==1.15.0
+    # via -r requirements/typing.in
 mypy-extensions==1.0.0
     # via mypy
 pycodestyle==2.12.1

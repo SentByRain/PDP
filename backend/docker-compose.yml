@@ -1,44 +1,79 @@
 version: '3.8'
 
 services:
-  db:
+  pdp-db:
     image: postgres:13
     container_name: postgres_db
     environment:
-      POSTGRES_USER: lil_antoha_big_smoke
-      POSTGRES_PASSWORD: lil_antoha_big_smoke
-      POSTGRES_DB: PDP
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB}
     ports:
-      - "5432:5432"
+      - '${POSTGRES_PORT}:${POSTGRES_PORT}'
+    env_file:
+      - ".env"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    networks:
+      - pdp-network
 
-  pgadmin:
+  pdp-pgadmin:
     image: dpage/pgadmin4
     container_name: pgadmin
     environment:
-      PGADMIN_DEFAULT_EMAIL: karpoffpasha@yandex.ru
-      PGADMIN_DEFAULT_PASSWORD: admin
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
     ports:
       - "8080:80"
+    env_file:
+      - ".env"
     depends_on:
-      - db
+      - pdp-db
     volumes:
       - ./servers.json:/pgadmin4/servers.json
+    networks:
+      - pdp-network
 
-  backend:
+  pdp-minio:
+    image: quay.io/minio/minio
+    container_name: minio
+    environment:
+      MINIO_ROOT_USER: ${MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD}
+    ports:
+      - "7000:9000"
+      - "7001:7001"
+    env_file:
+      - ".env"
+    volumes:
+      - ./data/minio:/data
+    networks:
+      - pdp-network
+    command: server /data --console-address ":7001"
+
+  pdp-backend:
     build:
       context: .
-      dockerfile: Dockerfile  # Указывает на текущую директорию с Dockerfile
+      dockerfile: Dockerfile
     container_name: backend
     ports:
-      - "8000:8000"
+      - "${APP_PORT}:${APP_PORT}"
+    env_file:
+      - ".env"
     depends_on:
-      - db
+      - pdp-db
+      - pdp-minio
     environment:
-      POSTGRESQL_DSN: postgresql+psycopg2://lil_antoha_big_smoke:lil_antoha_big_smoke@db:5432/PDP
+      POSTGRESQL_DSN: ${POSTGRESQL_DSN}
     volumes:
       - .:/app
+    networks:
+      - pdp-network
+
+networks:
+  pdp-network:
+    name: pdp-network
+    driver: bridge
 
 volumes:
   postgres_data:

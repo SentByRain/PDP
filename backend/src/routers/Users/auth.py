@@ -1,72 +1,75 @@
-from fastapi import Request, HTTPException, status, Depends
-from passlib.context import CryptContext
-from jose import jwt, JWTError
 from datetime import datetime, timedelta, timezone
-from sqlalchemy.orm import Session
-from pydantic import EmailStr
+from typing import Annotated
 
-from src.models import User
-from src.config import CONFIG, get_auth_data
+import jwt
+from fastapi import Depends, HTTPException, status
+from fastapi.security import OAuth2PasswordBearer
+from jwt.exceptions import InvalidTokenError
+from passlib.context import CryptContext
+
+
+from src.routers.Users.schemas import TokenData
+from src.config import CONFIG
 from src.database_control.db import get_db
+from src.models import UserDAO
 
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
-
-def get_password_hash(password: str) -> str:
-    return pwd_context.hash(password)
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="pdp/users/login")
 
 
-def verify_password(plain_password: str, hashed_password: str) -> bool:
+def verify_password(plain_password, hashed_password):
     return pwd_context.verify(plain_password, hashed_password)
 
 
-def create_access_token(data: dict) -> str:
-    to_encode = data.copy()
-    expire = datetime.now(timezone.utc) + timedelta(days=30)
-    to_encode.update({"exp": expire})
-    encode_jwt = jwt.encode(to_encode, CONFIG.SECRET_KEY, algorithm=CONFIG.ALGORITHM)
-    return encode_jwt
+def get_password_hash(password):
+    return pwd_context.hash(password)
 
 
-async def authenticate_user(email: EmailStr, password: str, db : Session):
-    user = db.query(User).filter(User.email == email).first()
-    if not user or verify_password(plain_password=password, hashed_password=user.password) is False:
-        return None
-    return user
-
-
-def get_token(request: Request):
-    token = request.cookies.get('users_access_token')
-    if not token:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Token not found')
-    return token
-
-
-async def get_current_user(db : Session = Depends(get_db), token: str = Depends(get_token)):
-    try:
-        auth_data = get_auth_data()
-        payload = jwt.decode(token, auth_data['secret_key'], algorithms=[auth_data['algorithm']])
-    except JWTError:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Токен не валидный!')
-
-    expire = payload.get('exp')
-    expire_time = datetime.fromtimestamp(int(expire), tz=timezone.utc)
-    if (not expire) or (expire_time < datetime.now(timezone.utc)):
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Токен истек')
-
-    user_id = payload.get('sub')
-    if not user_id:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='Не найден ID пользователя')
-
-    user = db.query(User).filter(User.id == user_id).first()
+def get_user(email: str):
+    db = next(get_db())
+    user = db.query(UserDAO).filter(UserDAO.email == email).first()
     if not user:
-        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail='User not found')
-
+        raise HTTPException(404, "User not found")
     return user
 
 
-async def get_current_admin_user(current_user: User = Depends(get_current_user)):
-    if current_user.is_admin:
-        return current_user
-    raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail='Недостаточно прав!')
+def authenticate_user(email: str, password: str):
+    user = get_user(email=email)
+    if not user:
+        return False
+    if not verify_password(password, user.password):
+        return False
+    return user
+
+
+def create_access_token(data: dict, expires_delta: timedelta | None = None):
+    to_encode = data.copy()
+    if expires_delta:
+        expire = datetime.now(timezone.utc) + expires_delta
+    else:
+        expire = datetime.now(timezone.utc) + timedelta(minutes=15)
+    to_encode.update({"exp": expire})
+    encoded_jwt = jwt.encode(to_encode, CONFIG.SECRET_KEY, algorithm=CONFIG.ALGORITHM)
+    return encoded_jwt
+
+
+async def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]):
+    credentials_exception = HTTPException(
+        status_code=status.HTTP_401_UNAUTHORIZED,
+        detail="Could not validate credentials",
+        headers={"WWW-Authenticate": "Bearer"},
+    )
+    try:
+        payload = jwt.decode(token, CONFIG.SECRET_KEY, algorithms=[CONFIG.ALGORITHM])
+        email = payload.get("sub")
+        if email is None:
+            raise credentials_exception
+        token_data = TokenData(email=email)
+    except InvalidTokenError:
+        raise credentials_exception
+    user = get_user(email=token_data.email)
+    if user is None:
+        raise credentials_exception
+    return user

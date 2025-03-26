@@ -15,15 +15,17 @@ from src.config import CONFIG
 from src.logger import logger
 from src.models import Base
 from src.database_control.db import engine
+from src.database_control.s3 import MinioHandler
 
 
-from src.routers import schedule_router
+
 from src.routers import user_router
 from src.routers import mail_router
+from src.routers import lesson_router
+# from src.routers import files_router
 
 
-routers = [schedule_router, user_router, mail_router]
-
+# routers = [schedule_router, user_router, mail_router, files_router]
 class CustomMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request: Request, call_next):
 
@@ -59,7 +61,13 @@ async def lifespan(app: FastAPI):
         print("Tables created successfully.")
     except SQLAlchemyError as e:
         print(f"Error creating tables: {e}")
-    
+
+    # Создаем бакет с файлами
+    try:
+        MinioHandler(bucket=CONFIG.MINIO_FILES_BUCKET_NAME)
+    except Exception as e:
+        raise e
+
     yield  # Proceed to app lifecycle
 
 
@@ -70,6 +78,10 @@ app = FastAPI(
     lifespan=lifespan
 )
 app.add_middleware(CustomMiddleware)
+
+app.include_router(user_router)
+app.include_router(mail_router)
+app.include_router(lesson_router)
 
 
 origins = ["*"]
@@ -90,10 +102,6 @@ async def http_exception_handler(request: Request, exc: HTTPException):
     return JSONResponse(
         status_code=exc.status_code, content={"message": f"{exc.detail}"}
     )
-
-for router in routers:
-    app.include_router(router)
-
 
 @app.get("/actuator/health/liveness", status_code=200)
 def liveness_check():

@@ -5,8 +5,11 @@ FROM python:3.10.12-slim
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 
-# Update and upgrade system packages
-RUN apt-get update -y && apt-get install -y --no-install-recommends gcc && apt-get upgrade -y
+# Update and upgrade system packages, install curl
+RUN apt-get update -y && \
+    apt-get install -y --no-install-recommends gcc curl && \
+    apt-get upgrade -y && \
+    apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Upgrade pip
 RUN python -m pip install --upgrade pip
